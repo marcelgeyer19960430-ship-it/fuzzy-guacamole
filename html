@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nocturnal Ink Tattoo Studio— Fully Editable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0b0b0d; --panel:#141418; --ink:#e8e8ea; --muted:#b7b7bb; --accent:#7a1f2b;
+      --shadow:rgba(0,0,0,0.6);
+      --bg-image:none; /* set to url('...') to use a background image */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: var(--bg);
+      background-image: var(--bg-image);
+      background-size: cover; background-position: center; background-attachment: fixed;
+      color:var(--ink); font-family: "Cinzel", serif; line-height:1.45;
+    }
+    a{color:var(--ink); text-decoration:none}
+    img{max-width:100%; height:auto; display:block}
+    .wrapper{min-height:100dvh; display:flex; flex-direction:column}
+    .header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px 18px; background:rgba(10,10,12,0.6); backdrop-filter: blur(8px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    .logo{display:flex; align-items:center; gap:10px}
+    .logo .brand{font-family:"UnifrakturMaguntia",cursive; letter-spacing:0.3px; font-size:clamp(22px,3.4vw,32px)}
+    .nav{display:flex; gap:12px; flex-wrap:wrap}
+    .nav a{padding:8px 12px; border-radius:8px; transition:background 140ms ease}
+    .nav a:hover{background:#121216}
+    .main{flex:1 1 auto; padding:24px 18px; max-width:1100px; margin:0 auto}
+    .hero{
+      display:grid; grid-template-columns: var(--hero-cols, 1.2fr 1fr); gap:24px; align-items:center;
+      padding:18px; background:var(--panel); border-radius:12px; box-shadow:0 12px 28px var(--shadow);
+    }
+    .hero h1{margin:0 0 8px; font-size:clamp(26px,4.6vw,44px)}
+    .hero p{color:var(--muted)}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; background:#121216; color:var(--ink);
+      padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); cursor:pointer;
+      transition:transform 140ms ease, background 140ms ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .section{margin:28px 0; padding:18px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.06)}
+    .section h2{margin:0 0 10px; font-size:clamp(20px,3.8vw,30px)}
+    .grid{display:grid; grid-template-columns: var(--grid-cols,repeat(auto-fill,minmax(220px, 1fr))); gap:16px}
+    .card{background:var(--panel); border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 20px var(--shadow)}
+    .card .thumb{aspect-ratio: 4 / 3; object-fit: cover}
+    .card .meta{padding:12px}
+    .meta h3{margin:0 0 6px; font-size:18px}
+    .meta p{margin:0; color:var(--muted); font-size:14px}
+    .footer{
+      padding:16px 18px; border-top:1px solid rgba(255,255,255,0.08);
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .social{display:flex; gap:10px}
+    .icon{width:34px; height:34px; display:grid; place-items:center; border-radius:50%; background:#121216; border:1px solid rgba(255,255,255,0.08)}
+    /* Editable highlight */
+    .editable[contenteditable="true"]{outline:1px dashed rgba(255,255,255,0.35); border-radius:6px; padding:4px}
+    /* Control panel */
+    .panel{
+      position:fixed; top:0; right:0; width:330px; max-width:90vw; height:100vh; background:#0e0e12; color:var(--ink);
+      border-left:1px solid rgba(255,255,255,0.08); box-shadow:-8px 0 24px rgba(0,0,0,0.5);
+      transform: translateX(100%); transition: transform 240ms ease;
+      display:flex; flex-direction:column; gap:12px; padding:14px; z-index:9999;
+    }
+    .panel.open{transform: translateX(0)}
+    .panel h3{margin:6px 0 8px}
+    .panel label{display:block; font-size:13px; color:var(--muted); margin:8px 0 4px}
+    .panel input,.panel select,.panel textarea{width:100%; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.12); background:#101015; color:var(--ink)}
+    .panel .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .panel .actions{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px}
+    .panel small{color:var(--muted)}
+    .toggle{
+      position:fixed; bottom:16px; right:16px; z-index:10000;
+      padding:10px 14px; border-radius:10px; background:#121216; color:var(--ink);
+      border:1px solid rgba(255,255,255,0.1); cursor:pointer;
+    }
+    /* Mobile */
+    @media (max-width:860px){ .hero{grid-template-columns:1fr; gap:16px} .panel{width:92vw} }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="header">
+    <div class="logo">
+      <img class="editable" contenteditable="false" data-edit="image" src="assets/logo.svg" alt="Nocturne Ink" />
+      <span class="brand editable" contenteditable="true" id="brandName">Nocturne Ink</span>
+    </div>
+    <nav class="nav">
+      <a class="editable" contenteditable="true" id="navHome" href="#">Home</a>
+      <a class="editable" contenteditable="true" id="navAbout" href="#">About</a>
+      <a class="editable" contenteditable="true" id="navGallery" href="#">Gallery</a>
+      <a class="editable" contenteditable="true" id="navContact" href="#">Contact</a>
+      <a class="editable" contenteditable="true" id="navBook" href="#">Book</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div>
+        <h1 class="editable" contenteditable="true" id="heroTitle">Gothic craft. Clean lines. Stories in skin.</h1>
+        <p class="editable" contenteditable="true" id="heroCopy">From black & grey realism to neo‑traditional color, we design pieces that feel lived‑in from day one.</p>
+        <a class="btn editable" contenteditable="true" id="ctaText" href="#">View portfolio</a>
+      </div>
+      <div>
+        <img class="thumb editable" contenteditable="false" data-edit="image" id="heroImage" src="assets/gallery/01.jpg" alt="Featured tattoo" />
+      </div>
+    </section>
+
+    <section class="section" id="services">
+      <h2 class="editable" contenteditable="true" id="servicesTitle">Services</h2>
+      <div id="galleryGrid" class="grid">
+        <!-- Cards are editable and can be added/removed via panel -->
+        <article class="card" data-card-id="c1">
+          <img class="thumb editable" contenteditable="false" data-edit="image" src="assets/gallery/02.jpg" alt="Black & Grey" />
+          <div class="meta">
+            <h3 class="editable" contenteditable="true" id="c1Title">Black & Grey</h3>
+            <p class="editable" contenteditable="true" id="c1Desc">Texture, depth, devotion.</p>
+          </div>
+        </article>
+        <article class="card" data-card-id="c2">
+          <img class="thumb editable" contenteditable="false" data-edit="image" src="assets/gallery/03.jpg" alt="Neo-traditional" />
+          <div class="meta">
+            <h3 class="editable" contenteditable="true" id="c2Title">Neo‑traditional</h3>
+            <p class="editable" contenteditable="true" id="c2Desc">Bold lines, anchored color.</p>
+          </div>
+        </article>
+        <article class="card" data-card-id="c3">
+          <img class="thumb editable" contenteditable="false" data-edit="image" src="assets/gallery/01.jpg" alt="Fine line" />
+          <div class="meta">
+            <h3 class="editable" contenteditable="true" id="c3Title">Fine line</h3>
+            <p class="editable" contenteditable="true" id="c3Desc">Minimal, precise, delicate.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small class="editable" contenteditable="true" id="footerInfo">&copy; Nocturne Ink — 15 Feijoa Street, West Acres, Nelspruit</small>
+    <div class="social">
+      <a class="icon editable" contenteditable="true" id="igLink" href="#">IG</a>
+      <a class="icon editable" contenteditable="true" id="fbLink" href="#">FB</a>
+      <a class="icon editable" contenteditable="true" id="waLink" href="#">WA</a>
+    </div>
+  </footer>
+</div>
+
+<button class="toggle" id="togglePanel">Edit mode</button>
+
+<div class="panel" id="panel">
+  <h3>Live editor</h3>
+  <div class="row">
+    <div>
+      <label>Accent color</label>
+      <input type="color" id="accentPicker" value="#7a1f2b">
+    </div>
+    <div>
+      <label>Text color</label>
+      <input type="color" id="inkPicker" value="#e8e8ea">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label>Panel color</label>
+      <input type="color" id="panelPicker" value="#141418">
+    </div>
+    <div>
+      <label>Background color</label>
+      <input type="color" id="bgPicker" value="#0b0b0d">
+    </div>
+  </div>
+
+  <label>Background image URL</label>
+  <input type="url" id="bgImageUrl" placeholder="https://..." />
+
+  <label>Hero layout</label>
+  <select id="heroLayout">
+    <option value="1.2fr 1fr">Text + Image</option>
+    <option value="1fr 0">Text only</option>
+    <option value="0 1fr">Image only</option>
+  </select>
+
+  <label>Grid columns</label>
+  <select id="gridCols">
+    <option value="repeat(auto-fill,minmax(220px,1fr))">Auto fill</option>
+    <option value="1fr 1fr">2 columns</option>
+    <option value="1fr 1fr 1fr">3 columns</option>
+    <option value="1fr">1 column</option>
+  </select>
+
+  <h3>Gallery controls</h3>
+  <div class="row">
+    <button id="addCard">Add card</button>
+    <button id="removeLast">Remove last</button>
+  </div>
+
+  <h3>Save / Import</h3>
+  <div class="actions">
+    <button id="saveAll">Save</button>
+    <button id="resetAll">Reset</button>
+  </div>
+  <label>Export JSON</label>
+  <textarea id="exportJson" rows="6" placeholder="Click Export to fill"></textarea>
+  <div class="actions">
+    <button id="exportBtn">Export</button>
+    <button id="importBtn">Import</button>
+  </div>
+  <small>Saving uses localStorage. Export JSON to move changes between devices.</small>
+</div>
+
+<script>
+(function(){
+  const panel = document.getElementById('panel');
+  const toggle = document.getElementById('togglePanel');
+
+  // Enable inline text editing toggle
+  let editMode = false;
+  function setEditMode(state){
+    editMode = state;
+    document.querySelectorAll('.editable').forEach(el=>{
+      const isImage = el.dataset.edit === 'image';
+      el.setAttribute('contenteditable', isImage ? 'false' : (editMode ? 'true' : 'false'));
+    });
+    panel.classList.toggle('open', editMode);
+    toggle.textContent = editMode ? 'Close editor' : 'Edit mode';
+  }
+  toggle.addEventListener('click', ()=> setEditMode(!editMode));
+
+  // Click-to-edit images
+  document.addEventListener('click', (e)=>{
+    const el = e.target;
+    if (el.classList.contains('editable') && el.dataset.edit === 'image' && editMode){
+      const url = prompt('Enter new image URL:', el.src);
+      if (url) el.src = url;
+    }
+  });
+
+  // Theme controls
+  const setVar = (name,val)=>document.documentElement.style.setProperty(name,val);
+  accentPicker.oninput = ()=>setVar('--accent', accentPicker.value);
+  inkPicker.oninput = ()=>setVar('--ink', inkPicker.value);
+  panelPicker.oninput = ()=>setVar('--panel', panelPicker.value);
+  bgPicker.oninput = ()=>setVar('--bg', bgPicker.value);
+  heroLayout.onchange = ()=>setVar('--hero-cols', heroLayout.value);
+  gridCols.onchange = ()=>setVar('--grid-cols', gridCols.value);
+  bgImageUrl.onchange = ()=>{
+    const v = bgImageUrl.value.trim();
+    setVar('--bg-image', v ? `url("${v}")` : 'none');
+  };
+
+  // Add / remove gallery cards
+  const grid = document.getElementById('galleryGrid');
+  let cardCount = grid.querySelectorAll('.card').length;
+  addCard.addEventListener('click', ()=>{
+    cardCount++;
+    const id = `c${Date.now()}`;
+    const html = `
+      <article class="card" data-card-id="${id}">
+        <img class="thumb editable" contenteditable="false" data-edit="image" src="assets/gallery/01.jpg" alt="New tattoo" />
+        <div class="meta">
+          <h3 class="editable" contenteditable="true" id="${id}Title">New piece</h3>
+          <p class="editable" contenteditable="true" id="${id}Desc">Describe the work.</p>
+        </div>
+      </article>
+    `;
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+  removeLast.addEventListener('click', ()=>{
+    const cards = grid.querySelectorAll('.card');
+    if (cards.length) cards[cards.length-1].remove();
+  });
+
+  // Save / reset / export / import
+  function serialize(){
+    const data = { vars:{}, texts:{}, images:[], cards:[] };
+    // CSS variables
+    const styles = getComputedStyle(document.documentElement);
+    ['--bg','--panel','--ink','--accent','--bg-image','--hero-cols','--grid-cols']
+      .forEach(k=>data.vars[k]=styles.getPropertyValue(k).trim());
+    // Text blocks
+    document.querySelectorAll('.editable').forEach(el=>{
+      if (el.dataset.edit === 'image') return;
+      if (el.id) data.texts[el.id] = el.innerHTML;
+    });
+    // Images with stable IDs or paths
+    document.querySelectorAll('.editable[data-edit="image"]').forEach(img=>{
+      const id = img.id || img.closest('.card')?.dataset.cardId || img.src;
+      data.images.push({ id, src: img.src, alt: img.alt });
+    });
+    // Cards
+    grid.querySelectorAll('.card').forEach(card=>{
+      const cid = card.dataset.cardId || '';
+      const title = card.querySelector('.meta h3')?.innerHTML || '';
+      const desc = card.querySelector('.meta p')?.innerHTML || '';
+      const src = card.querySelector('img')?.src || '';
+      data.cards.push({ id: cid, title, desc, src });
+    });
+    return data;
+  }
+  function apply(data){
+    if (data.vars){
+      Object.entries(data.vars).forEach(([k,v])=> v && setVar(k,v));
+      bgImageUrl.value = (data.vars['--bg-image']||'').replace(/^url\\("?|"?\\)$/g,'');
+      heroLayout.value = data.vars['--hero-cols'] || '1.2fr 1fr';
+      gridCols.value = data.vars['--grid-cols'] || 'repeat(auto-fill,minmax(220px,1fr))';
+      accentPicker.value = data.vars['--accent'] || '#7a1f2b';
+      inkPicker.value = data.vars['--ink'] || '#e8e8ea';
+      panelPicker.value = data.vars['--panel'] || '#141418';
+      bgPicker.value = data.vars['--bg'] || '#0b0b0d';
+    }
+    if (data.texts){
+      Object.entries(data.texts).forEach(([id,html])=>{
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      });
+    }
+    if (Array.isArray(data.cards)){
+      grid.innerHTML = '';
+      data.cards.forEach(c=>{
+        const id = c.id || `c${Date.now()}${Math.random()}`;
+        grid.insertAdjacentHTML('beforeend', `
+          <article class="card" data-card-id="${id}">
+            <img class="thumb editable" contenteditable="false" data-edit="image" src="${c.src||'assets/gallery/01.jpg'}" alt="${c.title||'Tattoo'}" />
+            <div class="meta">
+              <h3 class="editable" contenteditable="true" id="${id}Title">${c.title||'Piece'}</h3>
+              <p class="editable" contenteditable="true" id="${id}Desc">${c.desc||'Description'}</p>
+            </div>
+          </article>
+        `);
+      });
+    }
+    if (Array.isArray(data.images)){
+      data.images.forEach(({id,src})=>{
+        const img = document.getElementById(id) || grid.querySelector(`[data-card-id="${id}"] img`);
+        if (img && src) img.src = src;
+      });
+    }
+  }
+  function saveAll(){
+    const data = serialize();
+    localStorage.setItem('nocturne-edit', JSON.stringify(data));
+    alert('Saved to localStorage.');
+  }
+  function resetAll(){
+    localStorage.removeItem('nocturne-edit');
+    location.reload();
+  }
+  function exportData(){<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nocturne Ink — Editable Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { background:#0b0b0d; color:#e8e8ea; font-family:"Cinzel",serif; margin:0; padding:20px; }
+    .editable { border:1px dashed rgba(255,255,255,0.3); padding:6px; border-radius:6px; }
+    .toolbar { margin:10px 0; }
+    button { background:#121216; color:#e8e8ea; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#1a1a20; }
+    .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
+    .card { background:#141418; padding:10px; border-radius:8px; }
+    .card img { width:100%; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1 class="editable" contenteditable="true" id="heroTitle">Tattoo Portfolio</h1>
+  <p class="editable" contenteditable="true" id="heroCopy">Click text or images to edit directly.</p>
+
+  <div class="gallery">
+    <div class="card">
+      <img src="assets/gallery/01.jpg" alt="Tattoo 1" id="img1" onclick="editImage('img1')" />
+      <p class="editable" contenteditable="true" id="cap1">Black & Grey Gothic Sleeve</p>
+    </div>
+    <div class="card">
+      <img src="assets/gallery/02.jpg" alt="Tattoo 2" id="img2" onclick="editImage('img2')" />
+      <p class="editable" contenteditable="true" id="cap2">Mandala Chest Piece</p>
+    </div>
+    <div class="card">
+      <img src="assets/gallery/03.jpg" alt="Tattoo 3" id="img3" onclick="editImage('img3')" />
+      <p class="editable" contenteditable="true" id="cap3">Neo‑traditional Back Piece</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="saveEdits()">💾 Save</button>
+    <button onclick="resetEdits()">↩ Reset</button>
+  </div>
+
+  <script>
+    // Load saved edits
+    document.querySelectorAll('.editable').forEach(el => {
+      const saved = localStorage.getItem(el.id);
+      if (saved) el.innerHTML = saved;
+    });
+    ['img1','img2','img3'].forEach(id=>{
+      const saved = localStorage.getItem(id);
+      if(saved) document.getElementById(id).src = saved;
+    });
+
+    function saveEdits() {
+      document.querySelectorAll('.editable').forEach(el => {
+        localStorage.setItem(el.id, el.innerHTML);
+      });
+      ['img1','img2','img3'].forEach(id=>{
+        localStorage.setItem(id, document.getElementById(id).src);
+      });
+      alert('Edits saved locally!');
+    }
+
+    function resetEdits() {
+      document.querySelectorAll('.editable').forEach(el => {
+        localStorage.removeItem(el.id);
+      });
+      ['img1','img2','img3'].forEach(id=>{
+        localStorage.removeItem(id);
+      });
+      location.reload();
+    }
+
+    function editImage(id) {
+      const newUrl = prompt("Enter new image URL:", document.getElementById(id).src);
+      if(newUrl) document.getElementById(id).src = newUrl;
+    }
+  </script>
+</body>
+</html><div class="editable" contenteditable="true" id="uniqueID">Editable text here</div><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nocturne Ink — Editable Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+  <style>
+    body { background:#0b0b0d; color:#e8e8ea; font-family:"Cinzel",serif; margin:0; padding:20px; }
+    .editable { border:1px dashed rgba(255,255,255,0.3); padding:6px; border-radius:6px; }
+    .toolbar { margin:10px 0; }
+    button { background:#121216; color:#e8e8ea; border:1px solid rgba(255,255,255,0.2); padding:6px 12px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#1a1a20; }
+  </style>
+</head>
+<body>
+  <h1 class="editable" contenteditable="true" id="heroTitle">Gothic craft. Clean lines. Stories in skin.</h1>
+  <p class="editable" contenteditable="true" id="heroCopy">From black & grey realism to neo‑traditional color, we design pieces that feel lived‑in from day one.</p>
+
+  <div class="toolbar">
+    <button onclick="saveEdits()">💾 Save</button>
+    <button onclick="resetEdits()">↩ Reset</button>
+  </div>
+
+  <script>
+    // Load saved edits
+    document.querySelectorAll('.editable').forEach(el => {
+      const saved = localStorage.getItem(el.id);
+      if (saved) el.innerHTML = saved;
+    });
+
+    function saveEdits() {
+      document.querySelectorAll('.editable').forEach(el => {
+        localStorage.setItem(el.id, el.innerHTML);
+      });
+      alert('Edits saved locally!');
+    }
+
+    function resetEdits() {
+      document.querySelectorAll('.editable').forEach(el => {
+        localStorage.removeItem(el.id);
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tattoo Portfolio Book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Gothic fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <header class="site-header" role="banner">
+      <h1 class="logo">Nocturne Ink</h1>
+      <p class="subtitle">Portfolio Tome</p>
+    </header>
+
+    <main class="book-container" role="main">
+      <div class="book-shadow" aria-hidden="true"></div>
+
+      <section id="book" class="book" aria-label="Interactive gallery book">
+        <!-- Cover -->
+        <article class="page cover" data-page="0" aria-label="Cover">
+          <div class="page-inner">
+            <h2>Portfolio</h2>
+            <p>Tap the right edge or press › to open.</p>
+          </div>
+        </article>
+
+        <!-- Page 1 -->
+        <article class="page" data-page="1" aria-label="Page 1">
+          <div class="page-inner">
+            <figure class="art">
+              <img src="images/page1.jpg" alt="Black & Grey Gothic Sleeve" loading="lazy" decoding="async" />
+              <figcaption>Black & Grey Gothic Sleeve — texture, depth, devotion.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- Page 2 -->
+        <article class="page" data-page="2" aria-label="Page 2">
+          <div class="page-inner">
+            <figure class="art">
+              <img src="images/page2.jpg" alt="Mandala Chest Piece" loading="lazy" decoding="async" />
+              <figcaption>Mandala Chest Piece — symmetry, breath, balance.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- Page 3 -->
+        <article class="page" data-page="3" aria-label="Page 3">
+          <div class="page-inner">
+            <figure class="art">
+              <img src="images/page3.jpg" alt="Floral Linework" loading="lazy" decoding="async" />
+              <figcaption>Floral Linework — clean lines meet
